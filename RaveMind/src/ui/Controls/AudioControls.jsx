@@ -7,6 +7,7 @@ export const VisualizerState = {
     isPlaying: false,
     audioContext: null,
     sourceNode: null,
+    analyser: null,
 }
 
 export default function AudioControls() {
@@ -18,27 +19,63 @@ export default function AudioControls() {
         if (!file) return;
 
         //Create Audio Context
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        if (!VisualizerState.audioContext){
+        const audioContext = new (window.AudioContext)();
         VisualizerState.audioContext = audioContext;
-
+        }
         //Read audio file
         const arrayBuffer = await file.arrayBuffer();
-        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+        const audioBuffer = await VisualizerState.audioContext.decodeAudioData(arrayBuffer);
 
-        //Create a buffer source
-        const source = audioContext.createBufferSource();
+        if (VisualizerState.sourceNode) {
+            VisualizerState.sourceNode.stop();  // stop previous
+        }
+
+
+        //Create a buffer 
+        const source = VisualizerState.audioContext.createBufferSource();
         source.buffer = audioBuffer;
-        source.connect(audioContext.destination);
+        source.connect(VisualizerState.audioContext.destination);
         VisualizerState.sourceNode = source;
 
+        if (!VisualizerState.analyser){
+        const analyser = VisualizerState.audioContext.createAnalyser();
+        analyser.fftSize = 2048;
+        const bufferLength = analyser.fftSize;
+        const dataArray = new Float32Array(bufferLength)
+
+        VisualizerState.analyser = analyser;
+        VisualizerState.waveform = new Float32Array(analyser.fftSize);
+        }
+
+        source.connect(VisualizerState.analyser);
+        VisualizerState.analyser.connect(VisualizerState.audioContext.destination);
         //Start Playing
         source.start();
         VisualizerState.isPlaying = true;
         setIsPlaying(true);
-
-        //Simple waveform capture (placeholder)
-        VisualizerState.waveform = audioBuffer.getChannelData(0).slice(0, 1024);
+        console.log(VisualizerState.audioContext.state);
+        console.log(VisualizerState.analyser);
+        console.log(VisualizerState.waveform);
     };
+
+
+    const togglePlayPause = async() => {
+       
+        if (!VisualizerState.audioContext) return;
+         console.log(VisualizerState.audioContext.start === "running");
+        if (VisualizerState.audioContext.state === "running"){
+            await VisualizerState.audioContext.suspend();
+            setIsPlaying(false);
+            VisualizerState.isPlaying = false;
+            
+        } else if (VisualizerState.audioContext.state === "suspended"){
+            await VisualizerState.audioContext.resume();
+            setIsPlaying(true);
+            VisualizerState.isPlaying = true;
+        }
+    };
+
 
     return (
         <div>
@@ -51,7 +88,9 @@ export default function AudioControls() {
             <button onClick = {() => fileInputRef.current.click()}>
                 Upload Audio
             </button>
+            <button onClick = {togglePlayPause}></button>
             <span>{isPlaying ? "Playing" : "Paused"}</span>
+            
         </div>
     );
 }

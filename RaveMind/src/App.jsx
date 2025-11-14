@@ -3,6 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import AudioControls from './ui/Controls/AudioControls'
+import VisualizerCanvas from './ui/Controls/VisualizerCanvas'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -11,6 +12,7 @@ function App() {
     <div>
       <h1>RaveMind</h1>
       <AudioControls />
+      <VisualizerCanvas/>
     </div>
   )
 }
