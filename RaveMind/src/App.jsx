@@ -12,6 +12,7 @@ function App() {
     <div>
       <h1>RaveMind</h1>
       <AudioControls />
+      {console.log("before visualizer")}
       <VisualizerCanvas/>
     </div>
   )

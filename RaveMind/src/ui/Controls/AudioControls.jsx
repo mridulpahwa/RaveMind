@@ -3,11 +3,13 @@ import {useRef, useState} from "react";
 
 //Shared Visualizer state
 export const VisualizerState = {
+    visualizerMode : "default", // "waveform" | "bars" | "radial"
     waveform: [],
     isPlaying: false,
     audioContext: null,
     sourceNode: null,
     analyser: null,
+    frequency: [],
 }
 
 export default function AudioControls() {
@@ -46,6 +48,7 @@ export default function AudioControls() {
 
         VisualizerState.analyser = analyser;
         VisualizerState.waveform = new Float32Array(analyser.fftSize);
+        VisualizerState.frequency = new Uint8Array(VisualizerState.analyser.frequencyBinCount)
         }
 
         source.connect(VisualizerState.analyser);
@@ -54,9 +57,6 @@ export default function AudioControls() {
         source.start();
         VisualizerState.isPlaying = true;
         setIsPlaying(true);
-        console.log(VisualizerState.audioContext.state);
-        console.log(VisualizerState.analyser);
-        console.log(VisualizerState.waveform);
     };
 
 
