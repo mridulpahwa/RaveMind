@@ -30,7 +30,7 @@ export default function VisualizerCanvas(){
                         drawFrequencyBars(ctx, canvas);
                         break;
                     case "radial":
-                        drawRadialSpectrum
+                        drawRadialSpectrum(ctx, canvas);
                         break;
                     default:
                         drawWaveform(ctx, canvas);
@@ -45,7 +45,9 @@ export default function VisualizerCanvas(){
         return (
             <canvas
             ref = {canvasRef}
-            style = {{ width: "100%", height: "300px", background: "#111" }}
+            width={600}       
+            height={600}  
+            style = {{ width: "100%", height: "auto", background: "#111" }}
             />
         );
 }
@@ -84,6 +86,42 @@ function drawFrequencyBars(ctx, canvas) {
         }     
 }
 
-function drawRadialSpectrum(ctx, canvas) {} 
+function drawRadialSpectrum(ctx, canvas) {
+    
+    const freq = VisualizerState.frequency;
+    if (!freq || freq.length === 0) return;
+
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+
+    const radius = Math.min(cx, cy) * 0.4; // radius for inner circle
+    const barMaxHeight = radius * 0.8; // max bar length
+
+    const count = freq.length;
+    const angleStep = (Math.PI * 2) / count;
+
+    for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2;
+
+        const amp = freq[i];
+        const normalized = amp / 255;   // 0–1
+        const barLength = normalized * barMaxHeight;
+
+        // Inner base of the bar
+        const baseX = cx + radius * Math.cos(angle);
+        const baseY = cy + radius * Math.sin(angle);
+
+        // Outer tip of the bar
+        const tipX = cx + (radius + barLength) * Math.cos(angle);
+        const tipY = cy + (radius + barLength) * Math.sin(angle);
+
+        ctx.strokeStyle = "#00eaff";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(baseX, baseY);
+        ctx.lineTo(tipX, tipY);
+        ctx.stroke();
+    }
+} 
 
 function drawParticles(ctx, canvas) {} 

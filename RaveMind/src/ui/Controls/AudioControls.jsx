@@ -3,7 +3,7 @@ import {useRef, useState} from "react";
 
 //Shared Visualizer state
 export const VisualizerState = {
-    visualizerMode : "default", // "waveform" | "bars" | "radial"
+    visualizerMode : "radial", // "waveform" | "bars" | "radial"
     waveform: [],
     isPlaying: false,
     audioContext: null,
