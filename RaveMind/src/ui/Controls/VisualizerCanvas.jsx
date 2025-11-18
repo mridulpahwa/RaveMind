@@ -36,7 +36,8 @@ export default function VisualizerCanvas(){
                         drawWaveform(ctx, canvas);
                         drawFrequencyBars(ctx, canvas); // default combined view
                         break;
-                }  
+                }
+                VisualizerState.rotation += 0.005;  
                 requestAnimationFrame(draw);
             }
             draw();
@@ -94,6 +95,19 @@ function drawRadialSpectrum(ctx, canvas) {
     const cx = canvas.width / 2;
     const cy = canvas.height / 2;
 
+    // Save state
+    ctx.save();
+
+    // Move origin to center
+    ctx.translate(cx, cy);
+
+    // Apply rotation
+    ctx.rotate(VisualizerState.rotation);
+
+    // Move origin back
+    ctx.translate(-cx, -cy);
+
+
     const radius = Math.min(cx, cy) * 0.4; // radius for inner circle
     const barMaxHeight = radius * 0.8; // max bar length
 
@@ -122,6 +136,8 @@ function drawRadialSpectrum(ctx, canvas) {
         ctx.lineTo(tipX, tipY);
         ctx.stroke();
     }
+
+    ctx.restore();
 } 
 
 function drawParticles(ctx, canvas) {} 

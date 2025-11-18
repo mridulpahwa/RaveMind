@@ -4,6 +4,7 @@ import {useRef, useState} from "react";
 //Shared Visualizer state
 export const VisualizerState = {
     visualizerMode : "radial", // "waveform" | "bars" | "radial"
+    rotation : 0,
     waveform: [],
     isPlaying: false,
     audioContext: null,
