@@ -167,7 +167,7 @@ function drawBassPulse(ctx, canvas){
     const bassMax = canvas.width * 0.1;    // max extra radius
     const radius = baseRadius + bassNorm * bassMax;
 
-    // 3. Optional smooth animation
+    // 3. smooth animation
     if (!VisualizerState.bassRadius) VisualizerState.bassRadius = radius;
     VisualizerState.bassRadius = VisualizerState.bassRadius * 0.8 + radius * 0.2;
 
