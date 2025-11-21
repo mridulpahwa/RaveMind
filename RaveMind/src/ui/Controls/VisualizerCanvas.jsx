@@ -4,6 +4,7 @@ import drawWaveform from "../../visualizer/drawWaveform";
 import drawFrequencyBars from "../../visualizer/drawFrequencyBars"
 import drawRadialSpectrum from "../../visualizer/drawRadialSpectrum"
 import drawBassPulse from "../../visualizer/drawBassPulse"
+import {drawParticles, updateParticles} from "../../visualizer/drawParticles";
 
 export default function VisualizerCanvas(){
     const canvasRef = useRef(null);
@@ -17,6 +18,7 @@ export default function VisualizerCanvas(){
             canvas.width = canvas.clientWidth;
             canvas.height = canvas.clientHeight;
             function draw() {
+            try{
                 if (!ctx) return;
                 
                 //Update waveform for every 1024 frames
@@ -34,8 +36,19 @@ export default function VisualizerCanvas(){
                         drawFrequencyBars(ctx, canvas);
                         break;
                     case "radial":
+                        ctx.save();
+
+                        // apply center rotation
+                        ctx.translate(canvas.width / 2, canvas.height / 2);
+                        ctx.rotate(VisualizerState.rotation);
+                        ctx.translate(-canvas.width / 2, -canvas.height / 2);
+
                         drawRadialSpectrum(ctx, canvas);
-                        drawBassPulse(ctx, canvas)
+                        //drawBassPulse(ctx, canvas)
+                        updateParticles();
+                        drawParticles(ctx);
+
+                        ctx.restore();
                         break;
                     default:
                         drawWaveform(ctx, canvas);
@@ -46,6 +59,10 @@ export default function VisualizerCanvas(){
                 VisualizerState.hue = (VisualizerState.hue + 0.5) % 360; 
                 requestAnimationFrame(draw);
             }
+            catch(err){
+                console.error("Draw loop failed", err);
+            }
+        }
             draw();
         }, []);
 

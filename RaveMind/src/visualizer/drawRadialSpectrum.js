@@ -1,7 +1,8 @@
 // /src/visualizers/drawRadialSpectrum.js
 import { VisualizerState } from "../ui/Controls/AudioControls";
+import { spawnParticle } from "./drawParticles";
 
-export default function drawRadialSpectrum(ctx, canvas) {
+export default function drawRadialSpectrum(ctx, canvas, particles) {
 
     const freq = VisualizerState.frequency;
     if (!freq || freq.length === 0) return;
@@ -49,6 +50,9 @@ export default function drawRadialSpectrum(ctx, canvas) {
         ctx.moveTo(baseX, baseY);
         ctx.lineTo(tipX, tipY);
         ctx.stroke();
+        if (normalized > 0.6){
+            spawnParticle(tipX, tipY, `hsl(${VisualizerState.hue}, 100%, 60%)`)
+        }
     }
 
     ctx.restore();
