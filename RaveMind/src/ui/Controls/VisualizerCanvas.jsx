@@ -1,5 +1,9 @@
 import { useRef, useEffect } from "react";
 import { VisualizerState } from "./AudioControls";
+import drawWaveform from "../../visualizer/drawWaveform";
+import drawFrequencyBars from "../../visualizer/drawFrequencyBars"
+import drawRadialSpectrum from "../../visualizer/drawRadialSpectrum"
+import drawBassPulse from "../../visualizer/drawBassPulse"
 
 export default function VisualizerCanvas(){
     const canvasRef = useRef(null);
@@ -53,132 +57,4 @@ export default function VisualizerCanvas(){
             style = {{ width: "100%", height: "auto", background: "#111" }}
             />
         );
-}
-
-function drawWaveform(ctx, canvas) {
-    const waveform = VisualizerState.waveform;
-    if (VisualizerState && waveform.length > 0) {
-    ctx.beginPath();
-                    
-    const step = canvas.width / waveform.length;
-
-    waveform.forEach((val, i) => {
-        const x = i * step;
-        const y = canvas.height / 2 + val * canvas.height / 2; // scale to canvas
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-    });
-        ctx.strokeStyle = "#00ffea";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        }
-}
-
-function drawFrequencyBars(ctx, canvas) {
-    const freq = VisualizerState.frequency;
-    const barWidth = canvas.width / freq.length;
-    for (let i = 0; i < freq.length; i++) {
-    const barHeight = freq[i]; // 0–255 amplitude
-    ctx.fillStyle = "white";   // simple for now
-
-    ctx.fillRect(
-        i * barWidth,
-        canvas.height - barHeight,
-        barWidth,
-        barHeight
-        );
-        }     
-}
-
-function drawRadialSpectrum(ctx, canvas) {
-
-    const freq = VisualizerState.frequency;
-    if (!freq || freq.length === 0) return;
-
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2;
-
-    // Save state
-    ctx.save();
-
-    // Move origin to center
-    ctx.translate(cx, cy);
-
-    // Apply rotation
-    ctx.rotate(VisualizerState.rotation);
-
-    // Move origin back
-    ctx.translate(-cx, -cy);
-
-
-    const radius = Math.min(cx, cy) * 0.4; // radius for inner circle
-    const barMaxHeight = radius * 0.8; // max bar length
-
-    const count = freq.length;
-    const angleStep = (Math.PI * 2) / count;
-
-
-    for (let i = 0; i < count; i++) {
-        const angle = (i / count) * Math.PI * 2;
-
-        const amp = freq[i];
-        const normalized = amp / 255;   // 0–1
-        const barLength = normalized * barMaxHeight;
-
-        // Inner base of the bar
-        const baseX = cx + radius * Math.cos(angle);
-        const baseY = cy + radius * Math.sin(angle);
-
-        // Outer tip of the bar
-        const tipX = cx + (radius + barLength) * Math.cos(angle);
-        const tipY = cy + (radius + barLength) * Math.sin(angle);
-
-        const brightness = 40 + normalized * 40; // 40–80
-        ctx.strokeStyle = `hsl(${VisualizerState.hue}, 100%, ${brightness}%)`;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(baseX, baseY);
-        ctx.lineTo(tipX, tipY);
-        ctx.stroke();
-    }
-
-    ctx.restore();
-} 
-
-function drawParticles(ctx, canvas) {} 
-
-function drawBassPulse(ctx, canvas){
-    const freq = VisualizerState.frequency;
-    if (!freq || freq.length === 0) return;
-
-    const cx = canvas.width / 2;
-    const cy = canvas.height / 2;
-
-    // 1. Calculate average bass amplitude
-    const bassBins = 10; // first 10 bins = low frequencies
-    let bassSum = 0;
-    for (let i = 0; i < bassBins; i++) {
-        bassSum += freq[i];
-    }
-    const bassAvg = bassSum / bassBins;
-    const bassNorm = bassAvg / 255; // normalized 0–1
-
-    // 2. Map to radius
-    const baseRadius = canvas.width * 0.1; // minimum radius
-    const bassMax = canvas.width * 0.1;    // max extra radius
-    const radius = baseRadius + bassNorm * bassMax;
-
-    // 3. smooth animation
-    if (!VisualizerState.bassRadius) VisualizerState.bassRadius = radius;
-    VisualizerState.bassRadius = VisualizerState.bassRadius * 0.8 + radius * 0.2;
-
-    // 4. Draw the glowing circle
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(cx, cy, VisualizerState.bassRadius, 0, Math.PI * 2);
-    ctx.strokeStyle = `hsl(${VisualizerState.hue}, 100%, 50%)`;
-    ctx.lineWidth = 8;
-    ctx.shadowBlur = 20;
-    ctx.shadowColor = `hsl(${VisualizerState.hue}, 100%, 50%)`;
-    ctx.stroke();
-    ctx.restore();
 }

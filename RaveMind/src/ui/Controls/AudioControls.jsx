@@ -65,7 +65,6 @@ export default function AudioControls() {
     const togglePlayPause = async() => {
        
         if (!VisualizerState.audioContext) return;
-         console.log(VisualizerState.audioContext.start === "running");
         if (VisualizerState.audioContext.state === "running"){
             await VisualizerState.audioContext.suspend();
             setIsPlaying(false);
