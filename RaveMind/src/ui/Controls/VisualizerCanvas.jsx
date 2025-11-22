@@ -55,7 +55,7 @@ export default function VisualizerCanvas(){
                         drawFrequencyBars(ctx, canvas); // default combined view
                         break;
                 }
-                VisualizerState.rotation += 0.005;
+                VisualizerState.rotation += VisualizerState.hueSpeed;
                 VisualizerState.hue = (VisualizerState.hue + 0.5) % 360; 
                 requestAnimationFrame(draw);
             }

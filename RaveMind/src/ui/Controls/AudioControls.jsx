@@ -6,12 +6,14 @@ export const VisualizerState = {
     visualizerMode : "radial", // "waveform" | "bars" | "radial"
     rotation : 0,
     hue: 0,
+    hueSpeed: 0.005,
     waveform: [],
     isPlaying: false,
     audioContext: null,
     sourceNode: null,
     analyser: null,
     frequency: [],
+    particlesOn : false, // TODO : use this in Visualizer Canvas
 }
 
 export default function AudioControls() {
@@ -79,19 +81,24 @@ export default function AudioControls() {
 
 
     return (
-        <div>
+        <div className="flex items-center gap-2">
+            {/* Hidden file input */}
             <input
-            type = "file"
-            accept="audio/*"
-            ref = {fileInputRef}
-            onChange={handleFileChange}
+                type="file"
+                accept="audio/*"
+                ref={fileInputRef}
+                style={{ display: "none" }}
+                onChange={handleFileChange}
             />
-            <button onClick = {() => fileInputRef.current.click()}>
+
+            {/* Buttons */}
+            <button onClick={() => fileInputRef.current?.click()}>
                 Upload Audio
             </button>
-            <button onClick = {togglePlayPause}></button>
+            <button onClick={togglePlayPause}>
+                {isPlaying ? "Pause" : "Play"}
+            </button>
             <span>{isPlaying ? "Playing" : "Paused"}</span>
-            
         </div>
     );
 }
