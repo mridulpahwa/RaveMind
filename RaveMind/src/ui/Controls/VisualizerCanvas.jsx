@@ -44,10 +44,11 @@ export default function VisualizerCanvas(){
                         ctx.translate(-canvas.width / 2, -canvas.height / 2);
 
                         drawRadialSpectrum(ctx, canvas);
-                        //drawBassPulse(ctx, canvas)
-                        updateParticles();
-                        drawParticles(ctx);
-
+                        drawBassPulse(ctx, canvas)
+                        if (VisualizerState.particlesOn){
+                            updateParticles();
+                            drawParticles(ctx);
+                        }
                         ctx.restore();
                         break;
                     default:

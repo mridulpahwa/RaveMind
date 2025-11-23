@@ -40,3 +40,77 @@
 .read-the-docs {
   color: #888;
 }
+
+/* ---- Visualizer Controls Panel ---- */
+
+.visualizer-controls {
+  width: 260px;
+  background: #111;
+  padding: 18px;
+  border-radius: 12px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid #333;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.checkbox-group {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-label {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.control-select {
+  padding: 6px 8px;
+  background: #1c1c1c;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 6px;
+  outline: none;
+}
+
+.control-select:focus {
+  border-color: #6f42c1;
+}
+
+.control-slider {
+  width: 100%;
+  cursor: pointer;
+}
+
+/* Slider custom style */
+.control-slider::-webkit-slider-thumb {
+  background: #6f42c1;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  appearance: none;
+}
+
+.control-slider::-webkit-slider-runnable-track {
+  background: #333;
+  height: 4px;
+  border-radius: 6px;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;   /* Stack vertically */
+  align-items: center;      /* Center horizontally */
+  gap: 20px;
+  width: 100%;
+}

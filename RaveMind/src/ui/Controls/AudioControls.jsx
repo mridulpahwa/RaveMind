@@ -13,7 +13,7 @@ export const VisualizerState = {
     sourceNode: null,
     analyser: null,
     frequency: [],
-    particlesOn : false, // TODO : use this in Visualizer Canvas
+    particlesOn : true, // TODO : use this in Visualizer Canvas
 }
 
 export default function AudioControls() {
@@ -98,7 +98,6 @@ export default function AudioControls() {
             <button onClick={togglePlayPause}>
                 {isPlaying ? "Pause" : "Play"}
             </button>
-            <span>{isPlaying ? "Playing" : "Paused"}</span>
         </div>
     );
 }

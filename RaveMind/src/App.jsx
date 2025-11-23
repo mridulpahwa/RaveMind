@@ -10,7 +10,7 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-        <div className="app flex">
+        <div className="app">
             <div className="controls flex flex-col gap-4">
                 <AudioControls />          {/* Upload, play/pause, volume */}
                 <VisualizerControls />     {/* Toggle modes, particles, hue speed */}
