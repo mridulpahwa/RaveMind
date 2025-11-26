@@ -1,66 +1,58 @@
-// src/ai/midi/MidiParser.js (or .mjs)
+// src/ai/midi/MidiParser.js
 
-import fs from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-// --- This path logic is correct ---
+// --- Import the default package, then extract Midi ---
+import ToneMidi from '@tonejs/midi';
+const { Midi } = ToneMidi; 
+// ---------------------------------------------------------
+
+// Helper to resolve paths in ESM
+import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+// Adjust path to point to: src/ai/training/dataset
 const DATASET_PATH = path.resolve(__dirname, '../training/dataset');
-// ---
 
 /**
- * Reads and parses a JSON data file from the dataset directory.
- * @param {string} fileName - The name of the JSON file (e..g, "120bpm_hse_drm_id_001_0001.json")
- * @returns {Promise<object | null>} A promise that resolves to the *nested* data object.
+ * Parses a .mid file into a simplified format for the trainer.
+ * @param {string} fileName 
+ * @returns {Promise<Object | null>} { notes: [{pitch, start}], bpm }
  */
 export async function parseMidiData(fileName) {
-  
-  const filePath = path.resolve(DATASET_PATH, fileName);
+    // Construct absolute path to the file
+    const filePath = path.resolve(DATASET_PATH, fileName);
 
-  try {
-    const fileContents = await fs.readFile(filePath, 'utf-8');
-    const data = JSON.parse(fileContents);
-    
-    // --- FIX 1: UN-NEST THE DATA ---
-    // The data is inside a key that matches the filename (without .json)
-    // We find that key and return the object inside it.
-    const dataKey = Object.keys(data)[0]; 
-    if (data[dataKey]) {
-      return data[dataKey]; // Return the *nested* object
-    } else {
-      throw new Error("Could not find nested data key.");
+    try {
+        // Read binary data from disk
+        const fileBuffer = fs.readFileSync(filePath);
+        
+        // Parse using Tonejs/midi
+        const midi = new Midi(fileBuffer);
+
+        // Get the first track (usually drums in Groove dataset)
+        // Or find the track with the most notes to be safe
+        const track = midi.tracks.reduce((prev, current) => 
+            (prev.notes.length > current.notes.length) ? prev : current
+        , midi.tracks[0]);
+
+        if (!track || track.notes.length === 0) {
+            console.warn(`⚠️  Warning: ${fileName} has no notes.`);
+            return null;
+        }
+
+        // Extract clean data
+        return {
+            bpm: midi.header.tempos[0]?.bpm || 120,
+            notes: track.notes.map(n => ({
+                pitch: n.midi,
+                start: n.time // Time in seconds
+            }))
+        };
+
+    } catch (error) {
+        console.error(`Error parsing ${fileName}:`, error.message);
+        return null;
     }
-    // --- END OF FIX ---
-
-  } catch (error) {
-    console.error(`Error in MidiParser reading ${filePath}:`, error);
-    return null;
-  }
-}
-
-/**
- * Reads and parses the drum key map.
- * @returns {Promise<object | null>} A promise that resolves to the *nested* key map.
- */
-export async function getDrumKeyMap() {
-  const filePath = path.resolve(DATASET_PATH, 'key_map_drum_note_labels.json'); 
-  
-  try {
-    const fileContents = await fs.readFile(filePath, 'utf-8');
-    const keyMapData = JSON.parse(fileContents);
-
-    // --- FIX 2: UN-NEST THE KEY MAP ---
-    if (keyMapData.key_map_drum_note_labels) {
-      return keyMapData.key_map_drum_note_labels; // Return the *nested* map
-    } else {
-      throw new Error("Could not find nested 'key_map_drum_note_labels' key.");
-    }
-    // --- END OF FIX ---
-
-  } catch (error) {
-    console.error("Error fetching key map:", error);
-    return null;
-  }
 }
